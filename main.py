@@ -8,6 +8,7 @@ from folium import plugins
 
 if __name__ == '__main__':
     #dataframe = pd.read_csv(r'C:\Users\Admin\Downloads\hotel.csv')
+    pd.set_option('display.max_columns', None)
     dataframe = pd.read_csv('hotel.csv')
     app = Dash(__name__)
     app.layout = html.Div([
@@ -63,6 +64,12 @@ if __name__ == '__main__':
             popup = "Name" 
 
             m = folium.Map(location=start,tiles="openstreetmap",zoom_start = 11)
+            G = ox.graph_from_point(start, dist = 10000, network_type = "drive")
+            G = ox.add_edge_speeds(G)
+            G = ox.add_edge_travel_times(G)
+            print("links: " + str(len(G.edges())) + "\n")
+            gdfs = ox.graph_to_gdfs(G, nodes=False, edges=True)
+            print(gdfs.reset_index().head(3)) # we can use number of lanes, length, and travel times for optimization
 
             list_elements = sorted(list(data[color].unique()))
             data["color"] = data[color].apply(lambda x: list_colors[list_elements.index(x)])
