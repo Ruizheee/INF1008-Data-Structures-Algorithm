@@ -1,12 +1,14 @@
 import pandas as pd
 import folium
 import webbrowser
+import osmnx as ox
 from dash import Dash, html, dcc
 from dash.dependencies import Output, State, Input
 from folium import plugins
 
 if __name__ == '__main__':
-    dataframe = pd.read_csv(r'C:\Users\Admin\Downloads\hotel.csv')
+    #dataframe = pd.read_csv(r'C:\Users\Admin\Downloads\hotel.csv')
+    dataframe = pd.read_csv('hotel.csv')
     app = Dash(__name__)
     app.layout = html.Div([
         html.Div(id='input-container'),
