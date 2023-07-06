@@ -53,7 +53,10 @@ def traversal(graph, start_node):
 		start_node = stack.pop()
 		print("This is popped: " + str(start_node) + "\n")
 		#print(graph[start_node])
-		neighbours = list(graph[start_node].keys())
+		try:
+			neighbours = list(graph[start_node].keys())
+		except:
+			break
 		print(neighbours)
 		for neighbour in neighbours:
 			if neighbour not in visited:
@@ -61,6 +64,14 @@ def traversal(graph, start_node):
 				stack.push(neighbour)
 				visited.add(neighbour)
 
-	stack.display()
+		iter_neighbour = iter(neighbours)
+		for i in iter_neighbour:
+			try:
+				next_node = next(iter_neighbour)
+			except StopIteration:
+				break
+			if graph[start_node][i][0]['length'] <= graph[start_node][next_node][0]['length']:
+				print(str(graph[start_node][i][0]['length']) + " - " + str(graph[start_node][next_node][0]['length']))
+
 
 

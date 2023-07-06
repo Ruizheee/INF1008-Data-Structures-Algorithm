@@ -5,6 +5,7 @@ import osmnx as ox
 from dash import Dash, html, dcc
 from dash.dependencies import Output, State, Input
 from folium import plugins
+from optimize import *
 
 if __name__ == '__main__':
     #dataframe = pd.read_csv(r'C:\Users\Admin\Downloads\hotel.csv')
@@ -67,9 +68,13 @@ if __name__ == '__main__':
             G = ox.graph_from_point(start, dist = 10000, network_type = "drive")
             G = ox.add_edge_speeds(G)
             G = ox.add_edge_travel_times(G)
-            print("links: " + str(len(G.edges())) + "\n")
+            #print(G[10910555991][10910555992][0])
+            #pip install -t . numpy scipy scikit-learn /// to download scipy
+            start_test = ox.distance.nearest_nodes(G, start[1], start[0])
+            traversal(G, start_test)
+            #print("links: " + str(len(G.edges())) + "\n")
             gdfs = ox.graph_to_gdfs(G, nodes=False, edges=True)
-            print(gdfs.reset_index().head(3)) # we can use number of lanes, length, and travel times for optimization
+            #print(gdfs.reset_index().head(3)) # we can use number of lanes, length, and travel times for optimization
 
             list_elements = sorted(list(data[color].unique()))
             data["color"] = data[color].apply(lambda x: list_colors[list_elements.index(x)])
