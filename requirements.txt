@@ -1,3 +1,8 @@
 pandas==2.0.3
 folium==0.14.0
 dash==2.11.1
+osmnx
+networkx
+numpy
+scipy
+scikit-learn
