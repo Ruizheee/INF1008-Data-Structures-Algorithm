@@ -46,6 +46,7 @@ def traversal(graph, start_node):
 	stack = Stack()
 	stack.push(start_node)
 	visited = set([start_node])
+	route_list = []
 	#print(graph[start_node])
 	#print(f"Start Node: {start_node}\n")
 	
@@ -71,7 +72,11 @@ def traversal(graph, start_node):
 			except StopIteration:
 				break
 			if graph[start_node][i][0]['length'] <= graph[start_node][next_node][0]['length']:
-				print(str(graph[start_node][i][0]['length']) + " - " + str(graph[start_node][next_node][0]['length']))
+				#this block if 1st edge is shorter than 2nd edge to 2nd node
+				#print(str(graph[start_node][i][0]['length']) + " - " + str(graph[start_node][next_node][0]['length']))
+				route_list.append(graph[start_node][i])
+				#print("this is route list" + str(route_list[0]))
+
 
 
 
