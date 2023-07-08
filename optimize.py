@@ -1,82 +1,67 @@
+import heapq
 from main import *
 
-class StackNode:
-	def __init__(self, value=None):
-		self.value = value
-		self.next = None
+def dijkstra(graph, start):
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0
 
-class Stack:
-	def __init__(self):
-		self.head = None
-		self.size = 0
+    queue = [(0, start)]
 
-	def push(self, value):
-		#if the stack is empty
-		if self.head == None:
-			self.head = StackNode(value)
-		else:
-			new_node = StackNode(value)
-			new_node.next = self.head
-			self.head = new_node
-		self.size += 1
+    while queue:
+        current_distance, current_node = heapq.heappop(queue)
 
-	def pop(self):
-		if self.head == None:
-			return None
-		else:
-			popped = self.head
-			self.head = self.head.next
-			popped.next = None
-			return popped.value
-		self.size -= 1
+        if current_distance > distances[current_node]:
+            continue
 
-	def display(self):
-		node = self.head
+        for neighbor, weight in graph[current_node].items():
+            distance = current_distance + weight
 
-		while (node != None):
-			print(node.value, end="")
-			node = node.next
-			if (node != None):
-				print("->", end="")
-		return
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                heapq.heappush(queue, (distance, neighbor))
 
+    return distances
 
 
 def traversal(graph, start_node):
-	stack = Stack()
-	stack.push(start_node)
-	visited = set([start_node])
-	route_list = []
-	#print(graph[start_node])
-	#print(f"Start Node: {start_node}\n")
-	
-	while stack.size > 0:
-		start_node = stack.pop()
-		print("This is popped: " + str(start_node) + "\n")
-		#print(graph[start_node])
-		try:
-			neighbours = list(graph[start_node].keys())
-		except:
-			break
-		print(neighbours)
-		for neighbour in neighbours:
-			if neighbour not in visited:
-				#print(graph[neighbour])
-				stack.push(neighbour)
-				visited.add(neighbour)
+    stack = Stack()
+    stack.push(start_node)
+    visited = set([start_node])
+    route_list = []
 
-		iter_neighbour = iter(neighbours)
-		for i in iter_neighbour:
-			try:
-				next_node = next(iter_neighbour)
-			except StopIteration:
-				break
-			if graph[start_node][i][0]['length'] <= graph[start_node][next_node][0]['length']:
-				#this block if 1st edge is shorter than 2nd edge to 2nd node
-				#print(str(graph[start_node][i][0]['length']) + " - " + str(graph[start_node][next_node][0]['length']))
-				route_list.append(graph[start_node][i])
-				#print("this is route list" + str(route_list[0]))
+    while stack.size > 0:
+        start_node = stack.pop()
+
+        try:
+            neighbors = list(graph[start_node].keys())
+        except:
+            break
+
+        for neighbor in neighbors:
+            if neighbor not in visited:
+                stack.push(neighbor)
+                visited.add(neighbor)
+
+        iter_neighbour = iter(neighbors)
+        for i in iter_neighbour:
+            try:
+                next_node = next(iter_neighbour)
+            except StopIteration:
+                break
+
+            if graph[start_node][i][0]['length'] <= graph[start_node][next_node][0]['length']:
+                route_list.append(graph[start_node][i])
+
+    return route_list
 
 
+def optimized_traversal(graph, start_node):
+    distances = dijkstra(graph, start_node)
+    sorted_neighbors = sorted(graph[start_node].items(), key=lambda x: distances[x[0]])
 
+    route_list = []
+    for neighbor, _ in sorted_neighbors:
+        if graph[start_node][neighbor][0]['length'] <= distances[neighbor]:
+            route_list.append(graph[start_node][neighbor])
 
+    return route_list
