@@ -40,6 +40,8 @@ class Stack:
 				print("->", end="")
 		return
 
+def nodes_connected(graph, u, v):
+	return u in graph.neighbors(v)
 
 
 def traversal(graph, start_node, end_node):
@@ -51,6 +53,7 @@ def traversal(graph, start_node, end_node):
 	#print(f"Start Node: {start_node}\n")
 	j = 0
 	weightage = []
+	myDict = {}
 	
 	while stack.size > 0:
 		start_node = stack.pop()
@@ -59,6 +62,8 @@ def traversal(graph, start_node, end_node):
 		#print(graph[start_node])
 		try:
 			neighbours = list(graph[start_node].keys())
+			neighbours = list(neighbors(graph, start_node))
+			print("neighbours: " + neighbours + "\n")
 		except:
 			break
 		#print(neighbours)
@@ -67,15 +72,22 @@ def traversal(graph, start_node, end_node):
 				#print(graph[neighbour])
 				stack.push(neighbour)
 				visited.add(neighbour)
+				myDict[neighbour] = start_node
 
 		iter_neighbour = iter(neighbours)
 		for i in iter_neighbour:
 			try:
 				next_node = next(iter_neighbour)
-				weightage[j] += graph[start_node][next_node][0]['travel_time']
-				route_list.append(start_node)
+				#weightage[j] += graph[start_node][next_node][0]['travel_time']
+				#route_list.append(start_node)
 			except StopIteration:
 				break
+
+			if nodes_connected(graph, start_node, next_node) == True:
+				route_list.append(next_node)
+
+			#route_list.append(start_node)
+			weightage[j] += graph[start_node][next_node][0]['travel_time']	
 			'''
 			if graph[start_node][i][0]['length'] <= graph[start_node][next_node][0]['length']:
 				#this block if 1st edge is shorter than 2nd edge to 2nd node
@@ -83,11 +95,12 @@ def traversal(graph, start_node, end_node):
 				route_list.append(graph[start_node][i])
 				#print("this is route list" + str(route_list[0]))
 			'''
-			if start_node == end_node:
-				print("THIS IS THE END: " + str(start_node))
-				print("\nTOTAL TRAVEL TIME: " + str(weightage[j]))
-				j += 1
-				return route_list
+		if start_node == end_node:
+			print("THIS IS THE END: " + str(start_node))
+			print("\nTOTAL TRAVEL TIME: " + str(weightage[j]))
+			j += 1
+			print(myDict[start_node])
+			return route_list
 				#weightage.append()
 				#break
 
