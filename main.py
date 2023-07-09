@@ -54,7 +54,7 @@ if __name__ == '__main__':
             new = new.reset_index().rename(columns={"index":"id", "Name":"Name", "Longitude":"x", "Latitude":"y"})
             i = 0; new["base"] = new["id"].apply(lambda x : 1 if x == i else 0)
             #Extract the x and y values of changi airport
-            start = new[new["base"] == 1][["y","x"]].values[0] 
+            start = new[new["base"] == 1][["y","x"]].values[0]
 
             #Make a copy of the dataframe to refrain from modifying the original Dataframe
             data = new.copy() 
@@ -65,16 +65,24 @@ if __name__ == '__main__':
             popup = "Name" 
 
             m = folium.Map(location=start,tiles="openstreetmap",zoom_start = 11)
-            G = ox.graph_from_point(start, dist = 10000, network_type = "drive")
+            G = ox.graph_from_point(start, dist = 20000, network_type = "drive")
             G = ox.add_edge_speeds(G)
             G = ox.add_edge_travel_times(G)
             #print(G[10910555991][10910555992][0])
             #pip install -t . numpy scipy scikit-learn /// to download scipy
             start_test = ox.distance.nearest_nodes(G, start[1], start[0])
-            traversal(G, start_test)
+            traversal(G, start_test, 1842825730)
             #print("links: " + str(len(G.edges())) + "\n")
-            gdfs = ox.graph_to_gdfs(G, nodes=False, edges=True)
+            gdfs = ox.graph_to_gdfs(G, nodes=True, edges=False)
+            print(G[1838411781])
             #print(gdfs.reset_index().head(3)) # we can use number of lanes, length, and travel times for optimization
+            #print(G[242636478][4656921454])
+            #print(G[4656921454])
+            #print(G[4656921456])
+            #print(gdfs.head(3))
+            #print(list(G.neighbors(25451915)))
+            #print(G[25451915])
+            #print(G[954752246][4656921454])
 
             list_elements = sorted(list(data[color].unique()))
             data["color"] = data[color].apply(lambda x: list_colors[list_elements.index(x)])
