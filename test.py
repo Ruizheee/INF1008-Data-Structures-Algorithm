@@ -7,9 +7,10 @@ import networkx as nx
 from dash import Dash, html, dcc
 from dash.dependencies import Output, State, Input
 from folium import plugins
+from optimize import *
 
 if __name__ == '__main__':
-    dataframe = pd.read_csv(r'C:\Users\Admin\Downloads\hotel.csv')
+    dataframe = pd.read_csv('hotel.csv')
     app = Dash(__name__)
     app.layout = html.Div([
         html.Div(id='input-container'),
@@ -78,15 +79,25 @@ if __name__ == '__main__':
                 end_node = ox.distance.nearest_nodes(g, end[1], end[0])
                 #print("The node for " + places + " is " + str(end_node))
                 ###algo###
-                path_lenght = nx.shortest_path(g, source=start_node, target=end_node, 
-                                method='dijkstra', weight='lenght')     
-                print(path_lenght)
+                #path_lenght = nx.shortest_path(g, source=start_node, target=end_node, 
+                               # method='dijkstra', weight='lenght')     
+                #print(path_lenght)
 
+            start_test = ox.distance.nearest_nodes(g, start[1], start[0])
+            short = traversal(g, start_test, 1842825730)
+            #test = [1838411781, 5150138722]
+            #print(short)
+            #print(g[1838411781])
 
-                fig, ax = ox.plot_graph_route(g, path_lenght, route_color="red", 
+            #print(short)
+            fig, ax = ox.plot_route_folium
+
+            
+            fig, ax = ox.plot_graph_route(g, short, route_color="red", 
                               route_linewidth=5, node_size=1, 
                               bgcolor='black', node_color="white", 
                               figsize=(16,8))
+            
 
             list_elements = sorted(list(data[color].unique()))
             data["color"] = data[color].apply(lambda x: marker_colours[list_elements.index(x)])
