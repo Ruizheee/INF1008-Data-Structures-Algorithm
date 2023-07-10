@@ -1,52 +1,59 @@
 from foliumMap import *
 
-class StackNode:
-	def __init__(self, value=None):
+class QueueNode:
+	def __init__(self, value = None):
 		self.value = value
-		self.next = None
+		self.next =  None
 
-class Stack:
+class Queue:
 	def __init__(self):
-		self.head = None
-		self.size = 0
+		self.front = self.rear = None
 
-	def push(self, value):
-		#if the stack is empty
-		if self.head == None:
-			self.head = StackNode(value)
-		else:
-			new_node = StackNode(value)
-			new_node.next = self.head
-			self.head = new_node
-		self.size += 1
+	def checkEmpty(self):
+		return self.front == None
 
-	def pop(self):
-		if self.head == None:
-			return None
-		else:
-			popped = self.head
-			self.head = self.head.next
-			popped.next = None
-			return popped.value
-		self.size -= 1
+	def enqueue(self, data):
+		temp = QueueNode(data)
 
-	def display(self):
-		node = self.head
+		if self.rear == None:
+			self.front = self.rear = temp
+			return
+		self.rear.next = temp
+		self.rear = temp
 
-		while (node != None):
-			print(node.value, end="")
-			node = node.next
-			if (node != None):
-				print("->", end="")
-		return
+	def dequeue(self):
+
+		if self.checkEmpty():
+			return
+		temp = self.front
+		self.front = temp.next
+
+		if self.front == None:
+			self.rear = None
+
+		return temp
 
 def nodes_connected(graph, u, v):
 	return u in graph.neighbors(v)
 
+def bfs_traverse(graph, start_node, end_node):
+	queue = Queue()
+	queue.enqueue(start_node)
+	while queue:
+		path = queue.dequeue()
+		node = list(graph.neighbors(path))[-1]
+		if node == end_node:
+			return path
+		for neighbours in graph.neighbors(node):
+			new_path = list(path)
+			new_path.append(neighbours)
+			queue.append(new_path)
 
+
+'''
 def traversal(graph, start_node, end_node):
-	stack = Stack()
-	stack.push(start_node)
+	queue = Queue()
+	queue.enqueue(start_node)
 	visited = set([start_node])
 	route_list = []
 	#print(graph[start_node])
@@ -88,13 +95,13 @@ def traversal(graph, start_node, end_node):
 
 			#route_list.append(start_node)
 			weightage[j] += graph[start_node][next_node][0]['travel_time']	
-			'''
-			if graph[start_node][i][0]['length'] <= graph[start_node][next_node][0]['length']:
-				#this block if 1st edge is shorter than 2nd edge to 2nd node
-				#print(str(graph[start_node][i][0]['length']) + " - " + str(graph[start_node][next_node][0]['length']))
-				route_list.append(graph[start_node][i])
+		
+			#if graph[start_node][i][0]['length'] <= graph[start_node][next_node][0]['length']:
+			#	#this block if 1st edge is shorter than 2nd edge to 2nd node
+			#	#print(str(graph[start_node][i][0]['length']) + " - " + str(graph[start_node][next_node][0]['length']))
+			#	route_list.append(graph[start_node][i])
 				#print("this is route list" + str(route_list[0]))
-			'''
+			
 		if start_node == end_node:
 			print("THIS IS THE END: " + str(start_node))
 			print("\nTOTAL TRAVEL TIME: " + str(weightage[j]))
@@ -103,3 +110,4 @@ def traversal(graph, start_node, end_node):
 			return route_list
 				#weightage.append()
 				#break
+'''
