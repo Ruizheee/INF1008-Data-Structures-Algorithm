@@ -15,14 +15,18 @@ class MapCreator:
         pd.set_option('display.max_columns', None)
         dataframe = pd.read_csv('hotel.csv')
         #This is to grab the details of the starting point
-        new = dataframe[(dataframe.Name.str.contains("Changi Airport Singapore", case=False))] 
+        new = dataframe[(dataframe.Name.str.contains("Changi Airport Singapore", case=False))]
+        hotels_array = []
         # Searching all the values in the different input boxes then concat together into 1 dataframe
         for input_values in input_box: 
             try:
                 search = dataframe[(dataframe.Name.str.contains(input_values['props']['value'], case=False))]
                 new = pd.concat([new, search])
+                #print(new.head(3))
             except:
                 pass
+        hotels_array.extend(new['Name'].values)
+        print(hotels_array)       
         new = new.reset_index().rename(columns={"index":"id", "Name":"Name", "Longitude":"x", "Latitude":"y"})
         i = 0; new["base"] = new["id"].apply(lambda x : 1 if x == i else 0)
         #Extract the x and y values of changi airport
