@@ -52,7 +52,10 @@ class MapCreator:
         G = ox.graph_from_point(start, dist = 25000, network_type = "drive")
         G = ox.add_edge_speeds(G)
         G = ox.add_edge_travel_times(G)
-        ox.save_graphml(G, graph_filename)
+        
+        with mp.Lock() as lock:
+            ox.save_graphml(G, graph_filename)
+
         return G
 
     def generate_graph_multi_processors(self, start, graph_filename, processes):
