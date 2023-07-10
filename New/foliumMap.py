@@ -56,6 +56,14 @@ class MapCreator:
         gdfs = ox.graph_to_gdfs(G, nodes=False, edges=True)
         #print(gdfs.reset_index().head(3)) # we can use number of lanes, length, and travel times for optimization
 
+        fig, ax = ox.plot_route_folium
+        short = bfs_traverse(G, start_test, 137481583)
+
+        fig, ax = ox.plot_graph_route(G, short, route_color="red", 
+              route_linewidth=5, node_size=1, 
+              bgcolor='black', node_color="white", 
+              figsize=(16,8))
+
         list_elements = sorted(list(data[color].unique()))
         data["color"] = data[color].apply(lambda x: list_colors[list_elements.index(x)])
 
