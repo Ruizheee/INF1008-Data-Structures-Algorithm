@@ -33,31 +33,6 @@ class Queue:
 
 		return temp.value
 
-def nodes_connected(graph, u, v):
-	return u in graph.neighbors(v)
-
-def bfs_traverse(graph, start_node, end_node):
-	queue = Queue()
-	queue.enqueue(start_node)
-	path = []
-	while queue:
-		#path.append(current_node)
-		#path = queue.dequeue()
-		current_node = queue.dequeue()
-		path.append(current_node)
-		#path = queue.dequeue()
-		#print("path: " + str(path) + "\n")
-		node = path[-1]
-		if node == end_node:
-			return path
-		for neighbours in graph.neighbors(node):
-			new_path = list(path)
-			#new_path = [path]
-			new_path.append(neighbours)
-			for i in new_path:
-				queue.enqueue(i)
-			#queue.enqueue(neighbours)
-
 def backtrace(parent, start_node, end_node):
 	path = [end_node]
 	while path[-1] != start_node:
