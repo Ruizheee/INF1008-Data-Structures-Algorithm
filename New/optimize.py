@@ -46,7 +46,7 @@ def bfs_traverse(graph, start_node, end_node):
 		current_node = queue.dequeue()
 		path.append(current_node)
 		#path = queue.dequeue()
-		print("path: " + str(path) + "\n")
+		#print("path: " + str(path) + "\n")
 		node = path[-1]
 		if node == end_node:
 			return path
@@ -72,7 +72,7 @@ def bfs(graph, start_node, end_node):
 	queue.enqueue(start_node)
 	while queue:
 		node = queue.dequeue()
-		print("node: " + str(node) + "\n")
+		#print("node: " + str(node) + "\n")
 		if node == end_node:
 			return backtrace(parent, start_node, end_node)
 		for neighbours in graph.neighbors(node):
