@@ -26,15 +26,18 @@ class MapCreator:
             except:
                 pass
         hotels_array.extend(new['Name'].values)
-        print(hotels_array)       
+        #print(hotels_array)
+        
         new = new.reset_index().rename(columns={"index":"id", "Name":"Name", "Longitude":"x", "Latitude":"y"})
         i = 0; new["base"] = new["id"].apply(lambda x : 1 if x == i else 0)
         #Extract the x and y values of changi airport
         start = new[new["base"] == 1][["y","x"]].values[0] 
+        #print(new[new["Name"] == hotels_array[0]][["y","x"]].values[0])
+        #print(start)
 
         #Make a copy of the dataframe to refrain from modifying the original Dataframe
         data = new.copy() 
-        return data, start
+        return data, start, hotels_array, new
     
     def generate_graph(self, start):
         graph_filename = "saved_graph.graphml"
@@ -71,29 +74,46 @@ class MapCreator:
 
 
         
-    def draw_map(self, data, G, start):
+    def draw_map(self, data, G, start, hotels_array, new):
         color = "base"
         # Black will represent the hotels in the graph, Red will represent Changi Airport (Starting Point)
         list_colors = ["black", "red"] 
         popup = "Name" 
 
         m = folium.Map(location=start,tiles="openstreetmap",zoom_start = 11)
+        short = []
+        for i in range(len(hotels_array)):
+            try:
+                hotel_a = new[new["Name"] == hotels_array[i]][["y","x"]].values[0]
+                location_a = ox.distance.nearest_nodes(G, hotel_a[1], hotel_a[0])
+                hotel_b = new[new["Name"] == hotels_array[i + 1]][["y","x"]].values[0]
+                location_b = ox.distance.nearest_nodes(G, hotel_b[1], hotel_b[0])
+                short.append(bfs(G, location_a, location_b))
+            except IndexError as e:
+                break
+
         start_test = ox.distance.nearest_nodes(G, start[1], start[0])
+        #new[new["Name"] == hotels_array[0]][["y","x"]].values[0]
         #print(start_test)
-        end = data[data["Name"] == "Four Seasons Hotel Singapore"][["y","x"]].values[0]
-        end_test = ox.distance.nearest_nodes(G, end[1], end[0])
+        #end = data[data["Name"] == "Four Seasons Hotel Singapore"][["y","x"]].values[0]
+        #end_test = ox.distance.nearest_nodes(G, end[1], end[0])
         #traversal(G, start_test, end)
         #print("links: " + str(len(G.edges())) + "\n")
         gdfs = ox.graph_to_gdfs(G, nodes=False, edges=True)
         #print(gdfs.reset_index().head(3)) # we can use number of lanes, length, and travel times for optimization
 
         #fig, ax = ox.plot_route_folium
-        short = bfs(G, start_test, end_test)
+        #short = bfs(G, start_test, end_test)
         print(short)
-        fig, ax = ox.plot_graph_route(G, short, route_color="red", 
-              route_linewidth=5, node_size=1, 
-              bgcolor='black', node_color="white", 
-              figsize=(16,8))
+        #set_test = set(short)
+        #new_short = list(set_test)
+        if len(hotels_array) == 2:
+            fig, ax = ox.plot_graph_route(G, short[0], route_color="red", route_linewidth = 5, node_size = 1, bgcolor='black', node_color="white", figsize=(16,8))
+        else:
+            fig, ax = ox.plot_graph_routes(G, short, route_color="red", 
+                  route_linewidth=5, node_size=1, 
+                  bgcolor='black', node_color="white", 
+                  figsize=(16,8))
 
         list_elements = sorted(list(data[color].unique()))
         data["color"] = data[color].apply(lambda x: list_colors[list_elements.index(x)])
@@ -114,7 +134,7 @@ class MapCreator:
         if input_box is None:
             return None
         else:
-            data, start = self.setup_dataframe(input_box)
+            data, start, hotels_array, new = self.setup_dataframe(input_box)
             G = self.generate_graph(start)
-            self.draw_map(data, G, start)
+            self.draw_map(data, G, start, hotels_array, new)
         
