@@ -72,15 +72,17 @@ class MapCreator:
 
         m = folium.Map(location=start,tiles="openstreetmap",zoom_start = 11)
         start_test = ox.distance.nearest_nodes(G, start[1], start[0])
-        #end = data[data["Name"] == "Four Seasons Hotel Singapore"][["y","x"]].values[0]
+        #print(start_test)
+        end = data[data["Name"] == "Four Seasons Hotel Singapore"][["y","x"]].values[0]
+        end_test = ox.distance.nearest_nodes(G, end[1], end[0])
         #traversal(G, start_test, end)
         #print("links: " + str(len(G.edges())) + "\n")
         gdfs = ox.graph_to_gdfs(G, nodes=False, edges=True)
         #print(gdfs.reset_index().head(3)) # we can use number of lanes, length, and travel times for optimization
 
-        fig, ax = ox.plot_route_folium
-        short = bfs_traverse(G, start_test, 137481583)
-
+        #fig, ax = ox.plot_route_folium
+        short = bfs(G, start_test, end_test)
+        print(short)
         fig, ax = ox.plot_graph_route(G, short, route_color="red", 
               route_linewidth=5, node_size=1, 
               bgcolor='black', node_color="white", 
@@ -98,8 +100,8 @@ class MapCreator:
         plugins.Fullscreen(position="topright", title="Expand",
             title_cancel="Exit", force_separate_button=True).add_to(m)
                     
-        m.save('mynewmap.html')
-        webbrowser.open('mynewmap.html')
+        m.save('mynewmap2.html')
+        webbrowser.open('mynewmap2.html')
 
     def submit_inputs(self, n_clicks, input_box):
         if input_box is None:
