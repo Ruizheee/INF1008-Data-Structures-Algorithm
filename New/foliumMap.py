@@ -3,6 +3,7 @@ import folium
 import webbrowser
 import osmnx as ox
 import os
+import multiprocessing as mp
 from folium import plugins
 from optimize import *
 
@@ -14,7 +15,7 @@ class MapCreator:
         pd.set_option('display.max_columns', None)
         dataframe = pd.read_csv('hotel.csv')
         #This is to grab the details of the starting point
-        new = dataframe[(dataframe.Name.str.contains("changi airport singapore", case=False))] 
+        new = dataframe[(dataframe.Name.str.contains("Changi Airport Singapore", case=False))] 
         # Searching all the values in the different input boxes then concat together into 1 dataframe
         for input_values in input_box: 
             try:
@@ -36,13 +37,33 @@ class MapCreator:
         if (os.path.exists(graph_filename)):
             G = ox.load_graphml(graph_filename)
         else:
-            G = ox.graph_from_point(start, dist = 25000, network_type = "drive")
-            G = ox.add_edge_speeds(G)
-            G = ox.add_edge_travel_times(G)
-            ox.save_graphml(G, graph_filename)
-        
+            max_processes = 4
+            cpu_count = mp.cpu_count()
+            processes = min(max_processes, cpu_count)
+            print("Using " + str(processes) + " number of CPUs ")
+
+            if (processes == 1):
+                G = self.generate_graph_single_processor(start, graph_filename)            
+            else:
+                G = self.generate_graph_multi_processors(start, graph_filename, processes)
         return G
 
+    def generate_graph_single_processor(self, start, graph_filename):
+        G = ox.graph_from_point(start, dist = 25000, network_type = "drive")
+        G = ox.add_edge_speeds(G)
+        G = ox.add_edge_travel_times(G)
+        ox.save_graphml(G, graph_filename)
+        return G
+
+    def generate_graph_multi_processors(self, start, graph_filename, processes):
+        with mp.Pool(processes=processes) as pool:
+            args = [(start, graph_filename)] * processes
+            results = pool.starmap(self.generate_graph_single_processor, args)
+        G = results[0]
+        return G
+
+
+        
     def draw_map(self, data, G, start):
         color = "base"
         # Black will represent the hotels in the graph, Red will represent Changi Airport (Starting Point)
@@ -51,7 +72,8 @@ class MapCreator:
 
         m = folium.Map(location=start,tiles="openstreetmap",zoom_start = 11)
         start_test = ox.distance.nearest_nodes(G, start[1], start[0])
-        #traversal(G, start_test)
+        #end = data[data["Name"] == "Four Seasons Hotel Singapore"][["y","x"]].values[0]
+        #traversal(G, start_test, end)
         #print("links: " + str(len(G.edges())) + "\n")
         gdfs = ox.graph_to_gdfs(G, nodes=False, edges=True)
         #print(gdfs.reset_index().head(3)) # we can use number of lanes, length, and travel times for optimization
