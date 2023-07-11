@@ -142,7 +142,7 @@ def random_soln(matrix: [], start, hotels_array_index, size):
 	soln_list.sort()
 	return soln_list[0]
 
-#changing the routes, aka solution
+#changing/swapping the routes, aka solution
 def change(matrix, start, state, change_rate: float = 0.01):
 
 	changed_state = state.deepcopy()
@@ -178,4 +178,23 @@ def simulated_annealing_optimize(matrix, start, initial_state, change_rate: floa
 
 		if difference > 0 or probability(difference / temp):
 			optimal_state = candidate
+
+def shortest_distance_neighbours(graph, current_node, queue, distance):
+	while queue:
+		v = queue.dequeue()
+		for neighbours in graph.neighbors(v):
+
+
+def dijkstra(graph, df_node, start_node, end_node):
+	#distance = [float('inf')] * graph.number_of_nodes()
+	queue = Queue
+	queue.enqueue(start_node)
+	distance = {}
+	distance[start_node] = 0
+	#starting_index = df_node.loc[df_node['osmid'] == start_node]
+	#distance[starting_index] = 0
+	visited = {}
+
+	for i in range(graph.number_of_nodes()):
+		current_node = 
 
