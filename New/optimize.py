@@ -44,13 +44,13 @@ def backtrace(parent, start_node, end_node):
 	return path
 
 def bfs(graph, start_node, end_node):
+	#a dictionary that holds parent child pairing to backtrace to get the route
 	parent = {}
 	queue_list = [start_node]
 	queue = Queue()
 	queue.enqueue(start_node)
 	while queue:
 		node = queue.dequeue()
-		#print("node: " + str(node) + "\n")
 		if node == end_node:
 			return backtrace(parent, start_node, end_node)
 		for neighbours in graph.neighbors(node):
@@ -64,12 +64,13 @@ class Distance:
 		self.df = df
 		self.hotels_array = hotels_array
 
+	#returns a matrix of distances, eg. [[0.0, 0.16733845161529082, 0.15804035047101792], [0.16733845161529082, 0.0, 0.029338032176682512], [0.15804035047101792, 0.029338032176682512, 0.0]], the first list is the
+	#distance from node A to node A, node B and C, the second list is the distance from node B to node A, node B and C, so on
 	def calculateDistance(self):
 		matrix = []
 		for mainHotel in self.hotels_array:
 			temp_list = []
 			for hotels in self.hotels_array:
-				#hotel_a = new[new["Name"] == hotels_array[i]][["y","x"]].values[0]
 				hotel_a = self.df[self.df["Name"] == mainHotel][["y","x"]].values[0]
 				hotel_b = self.df[self.df["Name"] == hotels][["y","x"]].values[0]
 				distance_from_i_to_j = ox.distance.euclidean_dist_vec(hotel_a[0], hotel_a[1], hotel_b[0], hotel_b[1])
@@ -81,7 +82,8 @@ class Distance:
 
 
 class State:
-	def __init__(self, route: [], distance: int = 0):
+	def __init__(self, route, distance: int = 0):
+		#route is a list
 		self.route = route
 		self.distance = distance
 
@@ -98,6 +100,7 @@ class State:
 	def deepcopy(self):
 		return State(copy.deepcopy(self.route), copy.deepcopy(self.distance))
 
+	#this is to calculate the distance for comparing in SA
 	def update_distance(self, matrix, start):
 		self.distance = 0
 
@@ -107,6 +110,7 @@ class State:
 		#loop through the different nodes and update the total distance
 		for i in range(len(self.route)):
 			self.distance += matrix[start][self.route[i]]
+			#next node
 			start = self.route[i]
 
 		self.distance += matrix[from_index][start]
@@ -138,7 +142,7 @@ def random_soln(matrix: [], start, hotels_array_index, size):
 	soln_list.sort()
 	return soln_list[0]
 
-
+#changing the routes, aka solution
 def change(matrix, start, state, change_rate: float = 0.01):
 
 	changed_state = state.deepcopy()
@@ -146,7 +150,7 @@ def change(matrix, start, state, change_rate: float = 0.01):
 	for i in range(len(changed_state.route)):
 		if (random.random() < change_rate):
 
-			random_value = int(random.random() * len(state.route))
+			random_value = int(random.random() * len(state.route)) #random value is 0
 			first_node = changed_state.route[i]
 			second_node = changed_state.route[random_value]
 			changed_state.route[i] =  second_node
@@ -160,7 +164,7 @@ def simulated_annealing_optimize(matrix, start, initial_state, change_rate: floa
 
 	optimal_state = initial_state
 	max = sys.maxsize
-	temp = 0
+	temp = 10
 
 	for i in range(max):
 		temp = schedule(temp, i)
