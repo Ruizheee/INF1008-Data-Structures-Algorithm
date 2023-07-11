@@ -56,7 +56,7 @@ class MapCreator:
         return G
 
     def generate_graph_single_processor(self, start, graph_filename):
-        G = ox.graph_from_point(start, dist = 25000, network_type = "drive")
+        G = ox.graph_from_point(start, dist = 25000, network_type = "drive", simplify=False)
         G = ox.add_edge_speeds(G)
         G = ox.add_edge_travel_times(G)
         
@@ -112,12 +112,11 @@ class MapCreator:
         #print("links: " + str(len(G.edges())) + "\n")
         gdfs = ox.graph_to_gdfs(G, nodes=False, edges=True)
         #print(gdfs.reset_index().head(3)) # we can use number of lanes, length, and travel times for optimization
+        print(gdfs.iloc[2])
+        #print(gdfs.loc[gdfs['osmid'] == 489492096])
 
         #fig, ax = ox.plot_route_folium
-        #short = bfs(G, start_test, end_test)
         print(short)
-        #set_test = set(short)
-        #new_short = list(set_test)
         if len(hotels_array) == 2:
             fig, ax = ox.plot_graph_route(G, short[0], route_color="red", route_linewidth = 5, node_size = 1, bgcolor='black', node_color="white", figsize=(16,8))
         else:
