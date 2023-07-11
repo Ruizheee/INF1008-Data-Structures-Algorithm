@@ -179,6 +179,7 @@ def simulated_annealing_optimize(matrix, start, initial_state, change_rate: floa
 		if difference > 0 or probability(difference / temp):
 			optimal_state = candidate
 
+'''
 def shortest_distance_neighbours(graph, current_node, queue, distance):
 	while queue:
 		v = queue.dequeue()
@@ -193,9 +194,10 @@ def dijkstra(graph, df_node, start_node, end_node):
 	distance[start_node] = 0
 	#starting_index = df_node.loc[df_node['osmid'] == start_node]
 	#distance[starting_index] = 0
-	visited = {}
+#	visited = {}
 
-	for i in range(graph.number_of_nodes()):
-		current_node = 
+#	for i in range(graph.number_of_nodes()):
+#		current_node = 
 
 #test
+'''
