@@ -149,3 +149,4 @@ class MapCreator:
             G = self.generate_graph(start)
             self.draw_map(data, G, start, hotels_array, new)
         
+#test
