@@ -82,11 +82,22 @@ class MapCreator:
 
         m = folium.Map(location=start,tiles="openstreetmap",zoom_start = 11)
         short = []
-        for i in range(len(hotels_array)):
+        distance = Distance(new, hotels_array)
+        matrix = distance.calculateDistance()
+        hotels_array_index = [i for i in range(len(hotels_array))]
+
+        current_state = random_soln(matrix, 0, hotels_array_index, 100)
+        current_state = simulated_annealing_optimize(matrix, 0, current_state)
+        final_list_hotel = []
+        final_list_hotel.append(hotels_array[0])
+        for i in range(0, len(current_state.route)):
+            final_list_hotel.append(hotels_array[current_state.route[i]])
+        print(final_list_hotel)
+        for i in range(len(final_list_hotel)):
             try:
-                hotel_a = new[new["Name"] == hotels_array[i]][["y","x"]].values[0]
+                hotel_a = new[new["Name"] == final_list_hotel[i]][["y","x"]].values[0]
                 location_a = ox.distance.nearest_nodes(G, hotel_a[1], hotel_a[0])
-                hotel_b = new[new["Name"] == hotels_array[i + 1]][["y","x"]].values[0]
+                hotel_b = new[new["Name"] == final_list_hotel[i + 1]][["y","x"]].values[0]
                 location_b = ox.distance.nearest_nodes(G, hotel_b[1], hotel_b[0])
                 short.append(bfs(G, location_a, location_b))
             except IndexError as e:
