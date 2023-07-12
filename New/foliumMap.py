@@ -83,6 +83,21 @@ class MapCreator:
             except IndexError:
                 break
         return breadth_routelist
+
+    def execute_dijkstra(self, data, G, hotels_array):
+        dijkstra_routelist = []
+        for i in range(len(hotels_array)):
+            try:
+                source_coordinates = data[data["Name"] == hotels_array[i]][["y","x"]].values[0]
+                nearest_node_to_source = ox.distance.nearest_nodes(G, source_coordinates[1], source_coordinates[0])
+
+                destination_coordinates = data[data["Name"] == hotels_array[i + 1]][["y", "x"]].values[0]
+                nearest_node_to_destination = ox.distance.nearest_nodes(G, destination_coordinates[1], destination_coordinates[0])
+                print(G[1838411781][1838411671])
+                dijkstra_routelist.append(dijkstra(G, nearest_node_to_source, nearest_node_to_destination))
+            except IndexError:
+                break
+        return dijkstra_routelist
     
     def plot_routes(self, G, breadth_routelist, hotels_array, m):
         route_colors = ['red', 'blue', 'yellow', 'green', 'purple', 'orange', 'pink', 'cyan', 'magenta', 'brown']
@@ -100,15 +115,17 @@ class MapCreator:
         matrix = distance.calculateDistance()
         hotels_array_index = [i for i in range(len(hotels_array))]
 
-        current_state = random_soln(matrix, 0, hotels_array_index, 100)
+        current_state = random_soln(matrix, 0, hotels_array_index, len(hotels_array_index))
         current_state = simulated_annealing_optimize(matrix, 0, current_state)
         final_list_hotel = []
         final_list_hotel.append(hotels_array[0])
         for i in range(0, len(current_state.route)):
             final_list_hotel.append(hotels_array[current_state.route[i]])
         
-        breadth_routelist = self.execute_bfs(data, G, final_list_hotel)
-        self.plot_routes(G, breadth_routelist, final_list_hotel, m)
+        #breadth_routelist = self.execute_bfs(data, G, final_list_hotel)
+        dijkstra_routelist = self.execute_dijkstra(data, G, final_list_hotel)
+        #self.plot_routes(G, breadth_routelist, final_list_hotel, m)
+        self.plot_routes(G, dijkstra_routelist, final_list_hotel, m)
 
         layers = ["cartodbpositron", "openstreetmap", "Stamen Terrain", "Stamen Water Color", "Stamen Toner", "cartodbdark_matter"]
         for tile in layers:
