@@ -164,7 +164,7 @@ def simulated_annealing_optimize(matrix, start, initial_state, change_rate: floa
 
 	optimal_state = initial_state
 	max = sys.maxsize
-	temp = 10
+	temp = 100
 
 	for i in range(max):
 		temp = schedule(temp, i)
@@ -179,25 +179,50 @@ def simulated_annealing_optimize(matrix, start, initial_state, change_rate: floa
 		if difference > 0 or probability(difference / temp):
 			optimal_state = candidate
 
-'''
+
 def shortest_distance_neighbours(graph, current_node, queue, distance):
-	while queue:
-		v = queue.dequeue()
-		for neighbours in graph.neighbors(v):
+	#shortest_distance = 0
+	for neighbors in graph.neighbours(current_node):
+		try:
+			if distance[neighbour] > distance[current_node] + graph[current_node][neighbours][0]['length']:
+				distance[neighbour] = distance[current_node] + graph[current_node][neighbours][0]['length']
+		except KeyError:
+			distance[neighbour] = distance[current_node] + graph[current_node][neighbours][0]['length']
 
 
-def dijkstra(graph, df_node, start_node, end_node):
+def dijkstra(graph, start_node, end_node):
 	#distance = [float('inf')] * graph.number_of_nodes()
-	queue = Queue
+	queue = Queue()
+	queue_list = [start_node]
 	queue.enqueue(start_node)
 	distance = {}
 	distance[start_node] = 0
 	#starting_index = df_node.loc[df_node['osmid'] == start_node]
-	#distance[starting_index] = 0
-#	visited = {}
+	distance[start_node] = 0
+	#visited = {}
+	parent = {}
 
-#	for i in range(graph.number_of_nodes()):
-#		current_node = 
+	while queue:
+		current_node = queue.dequeue()
 
-#test
-'''
+		if current_node == end_node:
+			parent[current_node] 
+
+			return backtrace(parent, start_node, end_node)
+
+		for neighbours in graph.neighbors(current_node):
+			try:
+				if distance[neighbours] > distance[current_node] + graph[current_node][neighbours][0]['length']:
+					distance[neighbours] = distance[current_node] + graph[current_node][neighbours][0]['length']
+					queue.enqueue(neighbours)
+
+				if neighbours not in queue_list:
+					parent[neighbours] = current_node
+					queue_list.append(neighbours)
+			except KeyError:
+				distance[neighbours] = distance[current_node] + graph[current_node][neighbours][0]['length']
+				queue.enqueue(neighbours)
+
+				if neighbours not in queue_list:
+					parent[neighbours] = current_node
+					queue_list.append(neighbours)
