@@ -164,7 +164,7 @@ def simulated_annealing_optimize(matrix, start, initial_state, change_rate: floa
 
 	optimal_state = initial_state
 	max = sys.maxsize
-	temp = 100
+	temp = 999
 
 	for i in range(max):
 		temp = schedule(temp, i)
@@ -190,8 +190,10 @@ def shortest_distance_neighbours(graph, current_node, queue, distance):
 			distance[neighbour] = distance[current_node] + graph[current_node][neighbours][0]['length']
 
 
-def dijkstra(graph, start_node, end_node):
+def dijkstra(graph, start_node, end_node, weight):
 	#distance = [float('inf')] * graph.number_of_nodes()
+	weight_types = {0: 'length', 1: 'speed_kph', 2: 'travel_time'}
+	weight_selected = weight_types[weight]
 	queue = Queue()
 	queue_list = [start_node]
 	queue.enqueue(start_node)
@@ -212,15 +214,15 @@ def dijkstra(graph, start_node, end_node):
 
 		for neighbours in graph.neighbors(current_node):
 			try:
-				if distance[neighbours] > distance[current_node] + graph[current_node][neighbours][0]['length']:
-					distance[neighbours] = distance[current_node] + graph[current_node][neighbours][0]['length']
+				if distance[neighbours] > distance[current_node] + graph[current_node][neighbours][0][weight_selected]:
+					distance[neighbours] = distance[current_node] + graph[current_node][neighbours][0][weight_selected]
 					queue.enqueue(neighbours)
 
 				if neighbours not in queue_list:
 					parent[neighbours] = current_node
 					queue_list.append(neighbours)
 			except KeyError:
-				distance[neighbours] = distance[current_node] + graph[current_node][neighbours][0]['length']
+				distance[neighbours] = distance[current_node] + graph[current_node][neighbours][0][weight_selected]
 				queue.enqueue(neighbours)
 
 				if neighbours not in queue_list:
