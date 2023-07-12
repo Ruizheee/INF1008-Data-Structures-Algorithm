@@ -84,7 +84,8 @@ class MapCreator:
                 break
         return breadth_routelist
 
-    def execute_dijkstra(self, data, G, hotels_array):
+    def execute_dijkstra(self, data, G, hotels_array, weight: int = 0):
+        #for weight, 0 = length of road, 1 = speed of road, 2 = travel time
         dijkstra_routelist = []
         for i in range(len(hotels_array)):
             try:
@@ -93,8 +94,7 @@ class MapCreator:
 
                 destination_coordinates = data[data["Name"] == hotels_array[i + 1]][["y", "x"]].values[0]
                 nearest_node_to_destination = ox.distance.nearest_nodes(G, destination_coordinates[1], destination_coordinates[0])
-                print(G[1838411781][1838411671])
-                dijkstra_routelist.append(dijkstra(G, nearest_node_to_source, nearest_node_to_destination))
+                dijkstra_routelist.append(dijkstra(G, nearest_node_to_source, nearest_node_to_destination, weight))
             except IndexError:
                 break
         return dijkstra_routelist
@@ -123,7 +123,7 @@ class MapCreator:
             final_list_hotel.append(hotels_array[current_state.route[i]])
         
         #breadth_routelist = self.execute_bfs(data, G, final_list_hotel)
-        dijkstra_routelist = self.execute_dijkstra(data, G, final_list_hotel)
+        dijkstra_routelist = self.execute_dijkstra(data, G, final_list_hotel, 2)
         #self.plot_routes(G, breadth_routelist, final_list_hotel, m)
         self.plot_routes(G, dijkstra_routelist, final_list_hotel, m)
 
