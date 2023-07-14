@@ -35,7 +35,7 @@ class MapCreator:
         start = new[new["base"] == 1][["y","x"]].values[0] 
 
         return start, hotels_array, new
-    
+            
     def generate_graph(self, start):
         graph_filename = "saved_graph.graphml"
         if (os.path.exists(graph_filename)):
@@ -104,28 +104,10 @@ class MapCreator:
         for i in range(len(hotels_array[1:])):
             ox.plot_route_folium(G, route=breadth_routelist[i], route_map = m, color=route_colors[i], weight=1)
         
-    def draw_map(self, G, start, hotels_array, new):
-        data = new.copy()
+    def setup_map(self, m, data):
         color = "base"
         list_colors = ["black", "red"]
         popup = "Name"
-
-        m = folium.Map(location=start,tiles="openstreetmap",zoom_start = 11)
-        distance = Distance(new, hotels_array)
-        matrix = distance.calculateDistance()
-        hotels_array_index = [i for i in range(len(hotels_array))]
-
-        current_state = random_soln(matrix, 0, hotels_array_index, len(hotels_array_index))
-        current_state = simulated_annealing_optimize(matrix, 0, current_state)
-        final_list_hotel = []
-        final_list_hotel.append(hotels_array[0])
-        for i in range(0, len(current_state.route)):
-            final_list_hotel.append(hotels_array[current_state.route[i]])
-        
-        #breadth_routelist = self.execute_bfs(data, G, final_list_hotel)
-        dijkstra_routelist = self.execute_dijkstra(data, G, final_list_hotel, 2)
-        #self.plot_routes(G, breadth_routelist, final_list_hotel, m)
-        self.plot_routes(G, dijkstra_routelist, final_list_hotel, m)
 
         layers = ["cartodbpositron", "openstreetmap", "Stamen Terrain", "Stamen Water Color", "Stamen Toner", "cartodbdark_matter"]
         for tile in layers:
@@ -143,15 +125,46 @@ class MapCreator:
         
         plugins.Fullscreen(position="topright", title="Expand",
             title_cancel="Exit", force_separate_button=True).add_to(m)
-                    
+        
         m.save('mynewmap2.html')
         webbrowser.open('mynewmap2.html')
 
+    def get_dropdown_value(self, input_box):
+        dropdown_value = input_box[1]['props']['value']
+        return dropdown_value
+    
+    def pathfinding(self, G, m, data, hotels_array, dropdown_value):
+        final_list_hotel = []
+
+        distance = Distance(data, hotels_array)
+        matrix = distance.calculateDistance()
+        hotels_array_index = [i for i in range(len(hotels_array))]
+
+        current_state = random_soln(matrix, 0, hotels_array_index, len(hotels_array_index))
+        current_state = simulated_annealing_optimize(matrix, 0, current_state)
+        final_list_hotel.append(hotels_array[0])
+
+        for i in range(0, len(current_state.route)):
+            final_list_hotel.append(hotels_array[current_state.route[i]])
+        
+        if dropdown_value == 'dijkstra':
+            dijkstra_routelist = self.execute_dijkstra(data, G, final_list_hotel, 2)
+            self.plot_routes(G, dijkstra_routelist, final_list_hotel, m)
+        
+        elif dropdown_value == 'bfs':
+            breadth_routelist = self.execute_bfs(data, G, final_list_hotel)
+            self.plot_routes(G, breadth_routelist, final_list_hotel, m) 
+
+    def draw_map(self, G, start, hotels_array, new, dropdown_value):
+        data = new.copy()
+
+        m = folium.Map(location=start,tiles="cartodbpositron",zoom_start = 11)
+        self.pathfinding(G, m, data, hotels_array, dropdown_value)
+        self.setup_map(m, data)
+    
     def submit_inputs(self, n_clicks, input_box):
-        if input_box is None:
-            return None
-        else:
-            start, hotels_array, new = self.setup_dataframe(input_box)
-            G = self.generate_graph(start)
-            self.draw_map(G, start, hotels_array, new)
+        dropdown_value = self.get_dropdown_value(input_box)
+        start, hotels_array, new = self.setup_dataframe(input_box)
+        G = self.generate_graph(start)
+        self.draw_map(G, start, hotels_array, new, dropdown_value)
         
