@@ -86,6 +86,7 @@ class MapCreator:
         Using Breadth First Search, finds the shortest route
         '''
         breadth_routelist = []
+        total_calculated_distance = 0
         for i in range(len(hotels_array)):
             try:
                 source_coordinates = data[data["Name"] == hotels_array[i]][["y","x"]].values[0]
@@ -95,8 +96,9 @@ class MapCreator:
                 nearest_node_to_destination = ox.distance.nearest_nodes(G, destination_coordinates[1], destination_coordinates[0])
                 
                 #breadth_routelist.append(bfs(G, nearest_node_to_source, nearest_node_to_destination))
-                breadth_routelist_temp, total_calculated_distance = bfs(G, nearest_node_to_source, nearest_node_to_destination)
+                breadth_routelist_temp, total_calculated_distance_temp = bfs(G, nearest_node_to_source, nearest_node_to_destination)
                 breadth_routelist.append(breadth_routelist_temp)
+                total_calculated_distance += total_calculated_distance_temp
                 
             except IndexError:
                 break
@@ -115,6 +117,7 @@ class MapCreator:
         '''
         #print(G[1363263572][26778809])
         dijkstra_routelist = []
+        total_calculated_distance = 0
         for i in range(len(hotels_array)):
             try:
                 source_coordinates = data[data["Name"] == hotels_array[i]][["y","x"]].values[0]
@@ -123,8 +126,9 @@ class MapCreator:
                 destination_coordinates = data[data["Name"] == hotels_array[i + 1]][["y", "x"]].values[0]
                 nearest_node_to_destination = ox.distance.nearest_nodes(G, destination_coordinates[1], destination_coordinates[0])
                 #dijkstra_routelist.append(dijkstra(G, nearest_node_to_source, nearest_node_to_destination, weight))
-                dijkstra_routelist_temp, total_calculated_distance = dijkstra(G, nearest_node_to_source, nearest_node_to_destination, weight)
+                dijkstra_routelist_temp, total_calculated_distance_temp = dijkstra(G, nearest_node_to_source, nearest_node_to_destination, weight)
                 dijkstra_routelist.append(dijkstra_routelist_temp)
+                total_calculated_distance +=  total_calculated_distance_temp
                 
             except IndexError:
                 break
@@ -181,6 +185,7 @@ class MapCreator:
         hotels_array_index = [i for i in range(len(hotels_array))]
 
         current_state = random_soln(matrix, 0, hotels_array_index, len(hotels_array_index))
+        #current_state = solution_by_distance(matrix, 0)
         current_state = simulated_annealing_optimize(matrix, 0, current_state)
         final_list_hotel.append(hotels_array[0])
 
