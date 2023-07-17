@@ -38,10 +38,17 @@ class Queue:
 
 def backtrace(parent, start_node, end_node):
 	path = [end_node]
+	total_distance = 0
+	distance = 0
+	#print(parent)
+	#print(parent[path[-1]])
 	while path[-1] != start_node:
-		path.append(parent[path[-1]])
+		distance += parent[path[-1]][1]
+		total_distance += distance
+		path.append(parent[path[-1]][0])
+
 	path.reverse()
-	return path
+	return path, total_distance
 
 def bfs(graph, start_node, end_node):
 	#a dictionary that holds parent child pairing to backtrace to get the route
@@ -55,7 +62,7 @@ def bfs(graph, start_node, end_node):
 			return backtrace(parent, start_node, end_node)
 		for neighbours in graph.neighbors(node):
 			if neighbours not in queue_list:
-				parent[neighbours] = node
+				parent[neighbours] = [node, graph[node][neighbours][0]['length']]
 				queue_list.append(neighbours)
 				queue.enqueue(neighbours)
 
@@ -191,7 +198,6 @@ def shortest_distance_neighbours(graph, current_node, queue, distance):
 
 
 def dijkstra(graph, start_node, end_node, weight):
-	#distance = [float('inf')] * graph.number_of_nodes()
 	weight_types = {'option 1': 'length', 'option 2': 'speed_kph', 'option 3': 'travel_time'}
 	weight_selected = weight_types[weight]
 	queue = Queue()
@@ -199,9 +205,7 @@ def dijkstra(graph, start_node, end_node, weight):
 	queue.enqueue(start_node)
 	distance = {}
 	distance[start_node] = 0
-	#starting_index = df_node.loc[df_node['osmid'] == start_node]
 	distance[start_node] = 0
-	#visited = {}
 	parent = {}
 
 	while queue:
@@ -219,12 +223,13 @@ def dijkstra(graph, start_node, end_node, weight):
 					queue.enqueue(neighbours)
 
 				if neighbours not in queue_list:
-					parent[neighbours] = current_node
+					parent[neighbours] = [current_node, graph[current_node][neighbours][0]['length']]
 					queue_list.append(neighbours)
 			except KeyError:
 				distance[neighbours] = distance[current_node] + graph[current_node][neighbours][0][weight_selected]
 				queue.enqueue(neighbours)
 
 				if neighbours not in queue_list:
-					parent[neighbours] = current_node
+					#parent[neighbours] = current_node
+					parent[neighbours] = [current_node, graph[current_node][neighbours][0]['length']]
 					queue_list.append(neighbours)
