@@ -94,9 +94,13 @@ class MapCreator:
                 destination_coordinates = data[data["Name"] == hotels_array[i + 1]][["y","x"]].values[0]
                 nearest_node_to_destination = ox.distance.nearest_nodes(G, destination_coordinates[1], destination_coordinates[0])
                 
-                breadth_routelist.append(bfs(G, nearest_node_to_source, nearest_node_to_destination))
+                #breadth_routelist.append(bfs(G, nearest_node_to_source, nearest_node_to_destination))
+                breadth_routelist_temp, total_calculated_distance = bfs(G, nearest_node_to_source, nearest_node_to_destination)
+                breadth_routelist.append(breadth_routelist_temp)
+                
             except IndexError:
                 break
+        print("Total Distance: ", str(total_calculated_distance))
         return breadth_routelist
 
     def execute_dijkstra(self, data, G, hotels_array, weight: int = 0):
@@ -109,6 +113,7 @@ class MapCreator:
         - Speed of Road
         - Travel Time
         '''
+        #print(G[1363263572][26778809])
         dijkstra_routelist = []
         for i in range(len(hotels_array)):
             try:
@@ -117,9 +122,13 @@ class MapCreator:
 
                 destination_coordinates = data[data["Name"] == hotels_array[i + 1]][["y", "x"]].values[0]
                 nearest_node_to_destination = ox.distance.nearest_nodes(G, destination_coordinates[1], destination_coordinates[0])
-                dijkstra_routelist.append(dijkstra(G, nearest_node_to_source, nearest_node_to_destination, weight))
+                #dijkstra_routelist.append(dijkstra(G, nearest_node_to_source, nearest_node_to_destination, weight))
+                dijkstra_routelist_temp, total_calculated_distance = dijkstra(G, nearest_node_to_source, nearest_node_to_destination, weight)
+                dijkstra_routelist.append(dijkstra_routelist_temp)
+                
             except IndexError:
                 break
+        print("Total Distance: ", str(total_calculated_distance))
         return dijkstra_routelist
     
     def plot_routes(self, G, breadth_routelist, hotels_array, m):
