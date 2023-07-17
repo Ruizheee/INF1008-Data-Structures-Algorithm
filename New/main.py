@@ -35,7 +35,7 @@ class MyApp:
                         html.Div(id='input-container', style={'margin': '20px'}),
                         html.Div(id='dropdown-value', style={'display': 'none'}),
                         html.Div(
-                            style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', 'marginBottom': '10px'},  # Set flex display, alignment, justify content, and bottom margin
+                            style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', 'marginBottom': '10px'},  
                             children=[
                                 html.Button(
                                     'Add location',
@@ -47,7 +47,7 @@ class MyApp:
                                         'padding': '10px 20px',
                                         'border': 'none',
                                         'cursor': 'pointer',
-                                        'margin-right': '10px',  # Add right margin for spacing
+                                        'margin-right': '10px', 
                                         'border-radius': '10px',
                                     }
                                 ),
@@ -98,12 +98,20 @@ class MyApp:
         )(self.submit_input_callback)
 
     def add_input_callback(self, n_clicks, children):
+        '''
+        Handles the additional location button to dynamically create more input boxes based on each click
+        '''
         inputs = children if children is not None else []
+        inputs.append(html.Br())
         inputs.append(dcc.Input(id={'type': 'dynamic-input', 'index': n_clicks}, type='text', value='',
                                 placeholder='Enter location here', style={'height': '20px'}))
         return inputs
 
     def add_weight_dropdown(self, dropdown_value):
+        '''
+        In the web page, there is a dropdown bar for users to select the algorithm they want
+        Only if dijkstra is selected, another dropdown bar will appear allowing users to select the weight they want to use
+        '''
         if dropdown_value == 'dijkstra':
             weight_dropdown = html.Div(
                 children=[
@@ -128,14 +136,26 @@ class MyApp:
 
 
     def update_weight_values(self, weight_values, dropdown_value):
+        '''
+        Updates the dynamically created dropdown bar for users to select the weight they want to use,
+        If the method selected is Dijkstra, it will return the corresponding weight values
+        If the method selected is BFS, it will return an empty list
+        '''
         if dropdown_value == 'dijkstra':
             return weight_values
         else:
             return []
 
     def submit_input_callback(self, n_clicks, input_box, dropdown_value, weight_values):
+        '''
+        Used when the user clicks onto the submit button.
+        Passes over the input_box (Used in foliumMap.py to gather the names of the Hotel that the user wants to go to), 
+        dropdown_value (Dijkstra or BFS), 
+        Weight_values (What weight to use if Method indicated is Dijkstra)
+        '''
         if input_box is not None:
-            weight_values = weight_values[0]
+            if weight_values:
+                weight_values = weight_values[0]
             map_creator = MapCreator('hotel.csv')
             return map_creator.submit_inputs(n_clicks, input_box, dropdown_value, weight_values)
 

@@ -13,30 +13,41 @@ class MapCreator:
         self.dist = 25000
     
     def setup_dataframe(self, input_box):
+        '''
+        Pandas will be used to open and read the values of the CSV file consisting of hotels information
+        After that, a brand new dataframe will be created,
+        The row consisting of Changi Airport Singapore in the original dataframe will be added to the new dataframe
+        For each rows consisting of the hotels that the user is interested in, it will also be added into the new dataframe
+        Reduces the number of rows consisting of hotels that we are not interested in too
+
+        Additionally, it extracts the hotel names from the input_box and inserts all of them into an array
+        Returns the array of hotel names, 
+        Longitude and Latitude values of the Changi Airport (Start), using it as the base point for folium to generate the map around
+        and the new dataframe created
+        '''
         pd.set_option('display.max_columns', None)
         dataframe = pd.read_csv('hotel.csv')
-        #This is to grab the details of the starting point
         new = dataframe[(dataframe.Name.str.contains("Changi Airport Singapore", case=False))]
         hotels_array = []
-        # Searching all the values in the different input boxes then concat together into 1 dataframe
         for input_values in input_box: 
             try:
                 search = dataframe[(dataframe.Name.str.contains(input_values['props']['value'], case=False))]
                 new = pd.concat([new, search])
-                #print(new.head(3))
             except:
                 pass
         hotels_array.extend(new['Name'].values)
-        #print(hotels_array)
         
         new = new.reset_index().rename(columns={"index":"id", "Name":"Name", "Longitude":"x", "Latitude":"y"})
         i = 0; new["base"] = new["id"].apply(lambda x : 1 if x == i else 0)
-        #Extract the x and y values of changi airport
         start = new[new["base"] == 1][["y","x"]].values[0] 
 
         return start, hotels_array, new
             
     def generate_graph(self, start):
+        '''
+        Checks if there is an existing saved graph file, if not generate one
+        Makes use of multiprocessing if possible to generate the graph if there is no existing graphs saved
+        '''
         graph_filename = "saved_graph.graphml"
         if (os.path.exists(graph_filename)):
             G = ox.load_graphml(graph_filename)
@@ -70,6 +81,10 @@ class MapCreator:
         return G
 
     def execute_bfs(self, data, G, hotels_array):
+        '''
+        Extract the longitude and latitude of the hotels
+        Using Breadth First Search, finds the shortest route
+        '''
         breadth_routelist = []
         for i in range(len(hotels_array)):
             try:
@@ -85,7 +100,15 @@ class MapCreator:
         return breadth_routelist
 
     def execute_dijkstra(self, data, G, hotels_array, weight: int = 0):
-        #for weight, 0 = length of road, 1 = speed of road, 2 = travel time
+        '''
+        Extract the longitude and latitude of the hotels
+        Using Breadth First Search, finds the shortest route
+
+        For weight, there are three types of weight available:
+        - Length of Road
+        - Speed of Road
+        - Travel Time
+        '''
         dijkstra_routelist = []
         for i in range(len(hotels_array)):
             try:
@@ -100,11 +123,17 @@ class MapCreator:
         return dijkstra_routelist
     
     def plot_routes(self, G, breadth_routelist, hotels_array, m):
+        '''
+        Plots the route on folium, with each route between the nodes having a different colour to differentiate easily
+        '''
         route_colors = ['red', 'blue', 'yellow', 'green', 'purple', 'orange', 'pink', 'cyan', 'magenta', 'brown']
         for i in range(len(hotels_array[1:])):
             ox.plot_route_folium(G, route=breadth_routelist[i], route_map = m, color=route_colors[i], weight=1)
         
     def setup_map(self, m, data):
+        '''
+        Setup the folium map with markers, plugins and tiles
+        '''
         color = "base"
         list_colors = ["black", "red"]
         popup = "Name"
@@ -128,12 +157,14 @@ class MapCreator:
         
         m.save('mynewmap2.html')
         webbrowser.open('mynewmap2.html')
-
-    def get_dropdown_value(self, input_box):
-        dropdown_value = input_box[1]['props']['value']
-        return dropdown_value
     
-    def pathfinding(self, G, m, data, hotels_array, dropdown_value):
+    def pathfinding(self, G, m, data, hotels_array, dropdown_value, weight_values):
+        '''
+        Performs Simulated Annealing to determine the orders of the hotels
+        Appends the new or final order of hotels into an array
+        
+        Depending on the methods selected, uses BFS or Dijkstra to find the routelist
+        '''
         final_list_hotel = []
 
         distance = Distance(data, hotels_array)
@@ -148,23 +179,34 @@ class MapCreator:
             final_list_hotel.append(hotels_array[current_state.route[i]])
         
         if dropdown_value == 'dijkstra':
-            dijkstra_routelist = self.execute_dijkstra(data, G, final_list_hotel, 2)
+            dijkstra_routelist = self.execute_dijkstra(data, G, final_list_hotel, weight_values)
             self.plot_routes(G, dijkstra_routelist, final_list_hotel, m)
         
         elif dropdown_value == 'bfs':
             breadth_routelist = self.execute_bfs(data, G, final_list_hotel)
             self.plot_routes(G, breadth_routelist, final_list_hotel, m) 
 
-    def draw_map(self, G, start, hotels_array, new, dropdown_value):
+    def draw_map(self, G, start, hotels_array, new, dropdown_value, weight_values):
+        '''
+        Starts up Folium to generate a visualisation of the Singapore Map
+        Calls the Pathfinding function to plot the routes on the map
+        Calls setup_map function to mark the hotels and Changi Airport (Start) with markers
+        '''
         data = new.copy()
 
         m = folium.Map(location=start,tiles="cartodbpositron",zoom_start = 11)
-        self.pathfinding(G, m, data, hotels_array, dropdown_value)
+        self.pathfinding(G, m, data, hotels_array, dropdown_value, weight_values)
         self.setup_map(m, data)
     
-    def submit_inputs(self, n_clicks, input_box):
-        dropdown_value = self.get_dropdown_value(input_box)
-        start, hotels_array, new = self.setup_dataframe(input_box)
-        G = self.generate_graph(start)
-        self.draw_map(G, start, hotels_array, new, dropdown_value)
+    def submit_inputs(self, n_clicks, input_box, dropdown_value, weight_values):
+        '''
+        This function is called when the user first clicks on the submit button, 
+        Which calls upon all the other functions to generate the map
+        '''
+        if input_box is None:
+            return None
+        else:
+            start, hotels_array, new = self.setup_dataframe(input_box)
+            G = self.generate_graph(start)
+            self.draw_map(G, start, hotels_array, new, dropdown_value, weight_values)
         
