@@ -192,7 +192,7 @@ def shortest_distance_neighbours(graph, current_node, queue, distance):
 
 def dijkstra(graph, start_node, end_node, weight):
 	#distance = [float('inf')] * graph.number_of_nodes()
-	weight_types = {0: 'length', 1: 'speed_kph', 2: 'travel_time'}
+	weight_types = {'option 1': 'length', 'option 2': 'speed_kph', 'option 3': 'travel_time'}
 	weight_selected = weight_types[weight]
 	queue = Queue()
 	queue_list = [start_node]
