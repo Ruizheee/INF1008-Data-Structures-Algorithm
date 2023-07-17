@@ -100,7 +100,7 @@ class State:
 	def deepcopy(self):
 		return State(copy.deepcopy(self.route), copy.deepcopy(self.distance))
 
-	#this is to calculate the distance for comparing in SA
+	#this is to update the distance
 	def update_distance(self, matrix, start):
 		self.distance = 0
 
