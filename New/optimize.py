@@ -2,6 +2,7 @@ from foliumMap import *
 import copy
 import random
 import sys
+import numpy as np
 
 class QueueNode:
 	def __init__(self, value = None):
@@ -39,11 +40,11 @@ class Queue:
 def backtrace(parent, start_node, end_node):
 	path = [end_node]
 	total_distance = 0
-	distance = 0
+	#distance = 0
 	#print(parent)
 	#print(parent[path[-1]])
 	while path[-1] != start_node:
-		distance += parent[path[-1]][1]
+		distance = parent[path[-1]][1]
 		total_distance += distance
 		path.append(parent[path[-1]][0])
 
@@ -120,7 +121,9 @@ class State:
 			#next node
 			start = self.route[i]
 
+		
 		self.distance += matrix[from_index][start]
+		print("ROUTE: ", str(self.distance))
 
 
 def probability(p):
@@ -129,7 +132,12 @@ def probability(p):
 
 #the schedule function for SA
 def schedule(temp, iteration):
-	temperature = temp / (iteration + 1)
+	#temperature = temp / (iteration + 1)
+	temperature = temp / (iteration + 1) ** 2
+	return temperature
+
+def schedule_test(temp, iteration):
+	temperature = temp - 1
 	return temperature
 
 def random_soln(matrix: [], start, hotels_array_index, size):
@@ -137,7 +145,7 @@ def random_soln(matrix: [], start, hotels_array_index, size):
 	nodes.pop(start)
 	soln_list = []
 
-	for i in range(size):
+	for i in range(100):
 
 		random.shuffle(nodes)
 
@@ -149,32 +157,62 @@ def random_soln(matrix: [], start, hotels_array_index, size):
 	soln_list.sort()
 	return soln_list[0]
 
+'''
+
+def solution_by_distance(matrix: [], start):
+	route = []
+	start_index = start
+	length = len(matrix) - 1
+	row_length = len(matrix[0])
+
+	while len(route) < length:
+
+		for i in range(row_length):
+			row = matrix[i]
+			for j in range(len(row)):
+				if row[i] <= row[j]:
+					shortest = i
+			route.append(shortest)
+
+	state = State(route)
+	state.update_distance(matrix, start)
+	return state
+'''
+
 #changing/swapping the routes, aka solution
-def change(matrix, start, state, change_rate: float = 0.01):
+def change(matrix, start, state, change_rate: float = 0.5):
 
 	changed_state = state.deepcopy()
+	#print("length: ", str(len(changed_state.route)))
 
 	for i in range(len(changed_state.route)):
+		#print("random: ", str(random.random()))
 		if (random.random() < change_rate):
+			#print("check: ", str(changed_state.route))
 
 			random_value = int(random.random() * len(state.route)) #random value is 0
+			#print(random_value)
 			first_node = changed_state.route[i]
 			second_node = changed_state.route[random_value]
 			changed_state.route[i] =  second_node
 			changed_state.route[random_value] = first_node
+			#changed_state.update_distance(matrix, start)
 
 	changed_state.update_distance(matrix, start)
+	print("changed_state: ", str(changed_state.route))
+
 	return changed_state
 
 
-def simulated_annealing_optimize(matrix, start, initial_state, change_rate: float = 0.01):
+def simulated_annealing_optimize(matrix, start, initial_state, change_rate: float = 0.5):
 
 	optimal_state = initial_state
 	max = sys.maxsize
-	temp = 999
+	temp = 100
 
 	for i in range(max):
-		temp = schedule(temp, i)
+		temp = schedule_test(temp, i)
+		print("temp: ", str(temp))
 
 		if temp == 0:
 			return optimal_state
@@ -183,7 +221,7 @@ def simulated_annealing_optimize(matrix, start, initial_state, change_rate: floa
 
 		difference = optimal_state.distance - candidate.distance
 
-		if difference > 0 or probability(difference / temp):
+		if difference >= 0 or probability(difference / temp):
 			optimal_state = candidate
 
 
