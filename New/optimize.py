@@ -40,9 +40,6 @@ class Queue:
 def backtrace(parent, start_node, end_node):
 	path = [end_node]
 	total_distance = 0
-	#distance = 0
-	#print(parent)
-	#print(parent[path[-1]])
 	while path[-1] != start_node:
 		distance = parent[path[-1]][1]
 		total_distance += distance
@@ -54,7 +51,7 @@ def backtrace(parent, start_node, end_node):
 def bfs(graph, start_node, end_node):
 	#a dictionary that holds parent child pairing to backtrace to get the route
 	parent = {}
-	queue_list = [start_node]
+	visited_list = [start_node]
 	queue = Queue()
 	queue.enqueue(start_node)
 	while queue:
@@ -62,9 +59,9 @@ def bfs(graph, start_node, end_node):
 		if node == end_node:
 			return backtrace(parent, start_node, end_node)
 		for neighbours in graph.neighbors(node):
-			if neighbours not in queue_list:
+			if neighbours not in visited_list:
 				parent[neighbours] = [node, graph[node][neighbours][0]['length']]
-				queue_list.append(neighbours)
+				visited_list.append(neighbours)
 				queue.enqueue(neighbours)
 
 class Distance:
@@ -239,10 +236,9 @@ def dijkstra(graph, start_node, end_node, weight):
 	weight_types = {'option 1': 'length', 'option 2': 'speed_kph', 'option 3': 'travel_time'}
 	weight_selected = weight_types[weight]
 	queue = Queue()
-	queue_list = [start_node]
+	visited_list = [start_node]
 	queue.enqueue(start_node)
 	distance = {}
-	distance[start_node] = 0
 	distance[start_node] = 0
 	parent = {}
 
@@ -258,16 +254,18 @@ def dijkstra(graph, start_node, end_node, weight):
 			try:
 				if distance[neighbours] > distance[current_node] + graph[current_node][neighbours][0][weight_selected]:
 					distance[neighbours] = distance[current_node] + graph[current_node][neighbours][0][weight_selected]
+					parent[neighbours] = [current_node, graph[current_node][neighbours][0]['length']]
 					queue.enqueue(neighbours)
 
-				if neighbours not in queue_list:
-					parent[neighbours] = [current_node, graph[current_node][neighbours][0]['length']]
-					queue_list.append(neighbours)
+				if neighbours not in visited_list:
+					#parent[neighbours] = [current_node, graph[current_node][neighbours][0]['length']]
+					visited_list.append(neighbours)	
 			except KeyError:
 				distance[neighbours] = distance[current_node] + graph[current_node][neighbours][0][weight_selected]
+				parent[neighbours] = [current_node, graph[current_node][neighbours][0]['length']]
 				queue.enqueue(neighbours)
 
-				if neighbours not in queue_list:
+				if neighbours not in visited_list:
 					#parent[neighbours] = current_node
-					parent[neighbours] = [current_node, graph[current_node][neighbours][0]['length']]
-					queue_list.append(neighbours)
+					#parent[neighbours] = [current_node, graph[current_node][neighbours][0]['length']]
+					visited_list.append(neighbours)
