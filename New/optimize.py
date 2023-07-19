@@ -236,7 +236,6 @@ def dijkstra(graph, start_node, end_node, weight):
 	weight_types = {'option 1': 'length', 'option 2': 'speed_kph', 'option 3': 'travel_time'}
 	weight_selected = weight_types[weight]
 	queue = Queue()
-	visited_list = [start_node]
 	queue.enqueue(start_node)
 	distance = {}
 	distance[start_node] = 0
@@ -246,8 +245,6 @@ def dijkstra(graph, start_node, end_node, weight):
 		current_node = queue.dequeue()
 
 		if current_node == end_node:
-			parent[current_node] 
-
 			return backtrace(parent, start_node, end_node)
 
 		for neighbours in graph.neighbors(current_node):
@@ -256,16 +253,9 @@ def dijkstra(graph, start_node, end_node, weight):
 					distance[neighbours] = distance[current_node] + graph[current_node][neighbours][0][weight_selected]
 					parent[neighbours] = [current_node, graph[current_node][neighbours][0]['length']]
 					queue.enqueue(neighbours)
-
-				if neighbours not in visited_list:
-					#parent[neighbours] = [current_node, graph[current_node][neighbours][0]['length']]
-					visited_list.append(neighbours)	
 			except KeyError:
 				distance[neighbours] = distance[current_node] + graph[current_node][neighbours][0][weight_selected]
 				parent[neighbours] = [current_node, graph[current_node][neighbours][0]['length']]
 				queue.enqueue(neighbours)
 
-				if neighbours not in visited_list:
-					#parent[neighbours] = current_node
-					#parent[neighbours] = [current_node, graph[current_node][neighbours][0]['length']]
-					visited_list.append(neighbours)
+
