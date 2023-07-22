@@ -3,6 +3,8 @@ import copy
 import random
 import sys
 import numpy as np
+import math
+import decimal
 
 class QueueNode:
 	def __init__(self, value = None):
@@ -120,11 +122,12 @@ class State:
 
 		
 		self.distance += matrix[from_index][start]
-		print("ROUTE: ", str(self.distance))
+		#print("ROUTE: ", str(self.distance))
 
 
 def probability(p):
-	return p > random.uniform(0.0, 1.0)
+	return random.random() < p
+	#return p > random.uniform(0.0, 1.0)
 
 
 #the schedule function for SA
@@ -153,46 +156,45 @@ def random_soln(matrix: [], start, hotels_array_index, size):
 def change(matrix, start, state, change_rate: float = 0.5):
 
 	changed_state = state.deepcopy()
-	#print("length: ", str(len(changed_state.route)))
 
 	for i in range(len(changed_state.route)):
-		#print("random: ", str(random.random()))
 		if (random.random() < change_rate):
-			#print("check: ", str(changed_state.route))
 
 			random_value = int(random.random() * len(state.route)) #random value is 0
-			#print(random_value)
 			first_node = changed_state.route[i]
 			second_node = changed_state.route[random_value]
 			changed_state.route[i] =  second_node
 			changed_state.route[random_value] = first_node
-			#changed_state.update_distance(matrix, start)
 
 	changed_state.update_distance(matrix, start)
-	print("changed_state: ", str(changed_state.route))
+	#print("changed_state: ", str(changed_state.route))
 
 	return changed_state
 
-
-def simulated_annealing_optimize(matrix, start, initial_state, change_rate: float = 0.5):
+def simulated_annealing_optimize(matrix, start, initial_state, n_iteration, change_rate: float = 0.5):
 
 	optimal_state = initial_state
-	max = sys.maxsize
-	temp = 100
-
-	for i in range(max):
-		temp = schedule(temp, i)
-		print("temp: ", str(temp))
-
-		if temp <= 1:
-			return optimal_state
-
+	temp = 10
+	temp = np.float_(temp)
+	states_list = []
+	for i in range(n_iteration):
 		candidate = change(matrix, start, optimal_state, change_rate)
-
 		difference = optimal_state.distance - candidate.distance
+		temp = schedule(temp, i)
 
-		if difference >= 0 or probability(difference / temp):
+		print("changed_state: ", str(candidate.route))
+		print("distance: ", str(candidate.distance))
+		if difference >= 0 or probability(np.exp(-difference / np.exp(temp))):
 			optimal_state = candidate
+			states_list.append(optimal_state)
+			print("changed_state: ", str(optimal_state.route))
+			print("distance: ", str(optimal_state.distance))
+			print("temperature: ", str(temp))
+
+	states_list.sort()
+	return states_list[0]
+	#return optimal_state
+
 
 
 def shortest_distance_neighbours(graph, current_node, queue, distance):
