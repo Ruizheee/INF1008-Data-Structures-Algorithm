@@ -186,7 +186,7 @@ def simulated_annealing_optimize(matrix, start, initial_state, n_iteration, chan
 			print("distance: ", str(optimal_state.distance))
 			print("temperature: ", str(temp))
 
-	states_list.sort()
+	states_list.sort(key = lambda x: x.distance)
 	return states_list[0]
 	#return optimal_state
 
