@@ -122,12 +122,10 @@ class State:
 
 		
 		self.distance += matrix[from_index][start]
-		#print("ROUTE: ", str(self.distance))
 
 
 def probability(p):
 	return random.random() < p
-	#return p > random.uniform(0.0, 1.0)
 
 
 #the schedule function for SA
@@ -167,7 +165,6 @@ def change(matrix, start, state, change_rate: float = 0.5):
 			changed_state.route[random_value] = first_node
 
 	changed_state.update_distance(matrix, start)
-	#print("changed_state: ", str(changed_state.route))
 
 	return changed_state
 
@@ -182,8 +179,6 @@ def simulated_annealing_optimize(matrix, start, initial_state, n_iteration, chan
 		difference = optimal_state.distance - candidate.distance
 		temp = schedule(temp, i)
 
-		print("changed_state: ", str(candidate.route))
-		print("distance: ", str(candidate.distance))
 		if difference >= 0 or probability(np.exp(-difference / np.exp(temp))):
 			optimal_state = candidate
 			states_list.append(optimal_state)
