@@ -129,12 +129,7 @@ def probability(p):
 
 #the schedule function for SA
 def schedule(temp, iteration):
-	#temperature = temp / (iteration + 1)
-	temperature = temp / (iteration + 1) ** 2
-	return temperature
-
-def schedule_test(temp, iteration):
-	temperature = temp - 1
+	temperature = temp / (iteration + 1)
 	return temperature
 
 def random_soln(matrix: [], start, hotels_array_index, size):
@@ -153,28 +148,6 @@ def random_soln(matrix: [], start, hotels_array_index, size):
 
 	soln_list.sort()
 	return soln_list[0]
-
-'''
-
-def solution_by_distance(matrix: [], start):
-	route = []
-	start_index = start
-	length = len(matrix) - 1
-	row_length = len(matrix[0])
-
-	while len(route) < length:
-
-		for i in range(row_length):
-			row = matrix[i]
-			for j in range(len(row)):
-				if row[i] <= row[j]:
-					shortest = i
-			route.append(shortest)
-
-	state = State(route)
-	state.update_distance(matrix, start)
-	return state
-'''
 
 #changing/swapping the routes, aka solution
 def change(matrix, start, state, change_rate: float = 0.5):
@@ -208,10 +181,10 @@ def simulated_annealing_optimize(matrix, start, initial_state, change_rate: floa
 	temp = 100
 
 	for i in range(max):
-		temp = schedule_test(temp, i)
+		temp = schedule(temp, i)
 		print("temp: ", str(temp))
 
-		if temp == 0:
+		if temp <= 1:
 			return optimal_state
 
 		candidate = change(matrix, start, optimal_state, change_rate)
