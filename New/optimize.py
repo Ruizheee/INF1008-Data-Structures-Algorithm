@@ -190,18 +190,6 @@ def simulated_annealing_optimize(matrix, start, initial_state, n_iteration, chan
 	return states_list[0]
 	#return optimal_state
 
-
-
-def shortest_distance_neighbours(graph, current_node, queue, distance):
-	#shortest_distance = 0
-	for neighbors in graph.neighbours(current_node):
-		try:
-			if distance[neighbour] > distance[current_node] + graph[current_node][neighbours][0]['length']:
-				distance[neighbour] = distance[current_node] + graph[current_node][neighbours][0]['length']
-		except KeyError:
-			distance[neighbour] = distance[current_node] + graph[current_node][neighbours][0]['length']
-
-
 def dijkstra(graph, start_node, end_node, weight):
 	weight_types = {'option 1': 'length', 'option 2': 'speed_kph', 'option 3': 'travel_time'}
 	weight_selected = weight_types[weight]
